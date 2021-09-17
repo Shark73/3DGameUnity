@@ -11,7 +11,9 @@ public class Controller : MonoBehaviour
     [Header("Скорость бега персонажа")]
     public float run = 20f;
 
-    public CharacterController characterController;
+    private Rigidbody rb;
+
+    public CharacterController characterController; 
 
     public int coins;
 
@@ -19,7 +21,7 @@ public class Controller : MonoBehaviour
 
     Vector3 move;
 
-    Vector3 velocity;
+        Vector3 velocity;
 
     public float gravity = -3200f;
 
@@ -33,6 +35,8 @@ public class Controller : MonoBehaviour
 
     private void Start()
     {
+        rb = GetComponent<Rigidbody>();
+
         if (PlayerPrefs.HasKey("ABC"))
         {
             coins = PlayerPrefs.GetInt("ABC");
@@ -42,18 +46,18 @@ public class Controller : MonoBehaviour
 
     private void Update()
     {
-        float horizontal = Input.GetAxis("Horizontal");
+        float horizontal = Input.GetAxis("Horizontal"); // Переменные для перемещения по горизонтали и вертикали
         float vertical = Input.GetAxis("Vertical");
 
         move = transform.right * horizontal + transform.forward * vertical;
         
-        if(Input.GetKey(KeyCode.LeftShift) && isGrounded == true) 
+        if(Input.GetKey(KeyCode.LeftShift) && isGrounded == true) // Мы проверяем, что если мы зажимаем левый Shift, и если мы на земле (isGrounded), то скорость перемещение изменится на run
         {
             characterController.Move(move * run * Time.deltaTime);
         }
         else
         {
-            characterController.Move(move * speed * Time.deltaTime); 
+            characterController.Move(move * speed * Time.deltaTime); // Иначе мы двигаемся с обычной скоростью
         }
 
         velocity.y += gravity * Time.deltaTime;
@@ -66,13 +70,14 @@ public class Controller : MonoBehaviour
             velocity.y = -2f;
         }
     }
-
-    private void OnTriggerEnter(Collider other)
+// !!! 
+    void OnTriggerEnter(Collider other)
     {
-        if(other.gameObject.tag == "Mon")
+        Debug.Log("It worked!");
+        if (other.gameObject.CompareTag("Mon"))
         {
-            coins++;
-            other.gameObject.SetActive(false); 
+            coins++; // При столкновении с объектом, общее количество собранных букв мы увеличим на единицу
+            other.gameObject.SetActive(false); // После того как столкнулись с объектом, мы его деактивируем
             TextCoins.text = coins.ToString();
             PlayerPrefs.SetInt("ABC", coins);
         }
